@@ -9,11 +9,17 @@
 
 package com.example.player;
 import java.util.*;
+
+import javax.validation.OverridesAttribute;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+
 import com.example.player.Player;
 
 public class PlayerService implements PlayerRepository {
 
     private static HashMap<Integer, Player> team = new HashMap<>();
+        int uniquePlayerId = 12;
 
     public PlayerService() {
         team.put(1, new Player(1, "Alexander", 5, "All-rounder"));
@@ -37,6 +43,56 @@ public class PlayerService implements PlayerRepository {
         Collection<Player> playerCollection = team.values();
         ArrayList<Player> players = new ArrayList<>(playerCollection);
         return players;
+    }
+    @Override 
+    public Player addPlayer(Player player) {
+        player.setPlayerId(uniquePlayerId);
+        team.put(uniquePlayerId, player);
+        uniquePlayerId += 1;
+
+        return player;
+    }
+    @Override
+    public Player getPlayerById(int playerId) {
+        Player player = team.get(playerId);
+        if(player == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return player;
+    }
+
+    @Override
+    public Player updatePlayer(int playerId, Player player) {
+        Player existingPlayer=team.get(playerId);
+
+        if(existingPlayer == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        if (player.getPlayerName() != null) {
+            existingPlayer.setPlayerName(player.getPlayerName());
+        }
+        
+        if (player.getJerseyNumber() != 0) {
+            existingPlayer.setJerseyNumber(player.getJerseyNumber();
+        }
+        if(player.getRole() != null){
+            existingPlayer.setRole(player.getRole());
+        }
+        return existingPlayer;
+    }
+    @Override
+    public void deletePlayer(int playerId){
+        Player player=team.get(playerId);
+
+        if(player == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        else{
+            team.remove(playerId);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
+        }
     }
 
 }
